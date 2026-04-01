@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>加分系統</title>
+    <title>加分</title>
     <style>
         :root {
             --rose-quartz: #F7CAC9;
@@ -30,7 +30,7 @@
             flex-direction: column;
             align-items: center;
             color: var(--text-color);
-            padding: 5px; /* 極小邊距以增加可用空間 */
+            padding: 5px;
             overflow-x: hidden;
         }
 
@@ -47,7 +47,7 @@
             width: 100%;
             max-width: 700px;
             display: flex;
-            flex-direction: row; /* 改為橫向以節省垂直空間 */
+            flex-direction: row;
             justify-content: center;
             align-items: center;
             gap: 10px;
@@ -106,7 +106,7 @@
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 1100px; /* 增加最大寬度 */
+            max-width: 1100px;
         }
 
         .grid {
@@ -116,11 +116,11 @@
         }
 
         .seat {
-            aspect-ratio: 2.2 / 1; /* 格子變得很寬、很矮 */
+            aspect-ratio: 2.2 / 1;
             background: var(--white);
             border-radius: 6px;
             display: flex;
-            flex-direction: row; /* 姓名與分數橫向排列或調整佈局 */
+            flex-direction: row;
             align-items: center;
             justify-content: space-around;
             cursor: pointer;
@@ -219,7 +219,7 @@
 <body id="mainBody" class="mode-plus">
 
     <header>
-        <h1>SVT SCORE BOARD</h1>
+        <h1>個人加分</h1>
     </header>
 
     <div class="controls">
@@ -252,37 +252,35 @@
 
     <script>
         // ==========================================
-        // 名單設定：1-30 是同學，31-36 是預備
+        // 名單設定：現在順序從左上角開始編號 (1-36)
+        // 第一排 (1-6)：預留位置
+        // 後續排 (7-36)：學生名單
         // ==========================================
-        const generateNames = (prefix, extraPrefix) => {
-            let names = Array.from({length: 30}, (_, i) => `${prefix}${i + 1}`);
-            let extras = Array.from({length: 6}, (_, i) => `${extraPrefix}${i + 1}`);
-            return [...names, ...extras];
-        };
-
         const class1Names = [
-            "同學1", "同學2", "同學3", "同學4", "同學5", "同學6",
+            "空位", "空位", "空位", "空位", "空位", "空位", // 第一排
+            "05周佑恩", "同學2", "同學3", "同學4", "同學5", "同學6",
             "同學7", "同學8", "同學9", "同學10", "同學11", "同學12",
             "同學13", "同學14", "同學15", "同學16", "同學17", "同學18",
             "同學19", "同學20", "同學21", "同學22", "同學23", "同學24",
-            "同學25", "同學26", "同學27", "同學28", "同學29", "同學30",
-            "預備1", "預備2", "預備3", "預備4", "預備5", "預備6"
+            "同學25", "12黃奕文", "同學27", "09張祐恩", "同學29", "同學30"
         ];
+
         const class2Names = [
-            "同學1", "同學2", "同學3", "03阮宥翔", "24林奕彤", "10陳煥珺",
-            "同學7", "同學8", "同學9", "08郭祐維", "27范語宸", "21朱可棠",
-            "同學13", "同學14", "同學15", "26邱沐妍", "09陳昱澔", "29張巧樂",
-            "同學19", "同學20", "同學21", "12黃柏凱", "05林杰宇", "02李承哲",
-            "同學25", "同學26", "15劉德安", "11程子珅", "14劉峰邑", "空位",
-            "空位", "空位", "空位", "空位", "空位", "空位"
+            "空位", "空位", "空位", "空位", "空位", "空位",
+            "空位", "14劉峰邑", "J11程子珅", "15劉德安", "06林宥騏", "空位",
+            "02李承哲", "05林杰宇", "12黃柏凱", "31楊媃安", "28徐畇靖", "23吳庭樂",
+            "29張巧樂", "09陳昱澔", "26邱沐妍", "16劉鈞皓", "17顏祖冰", "30許絜淅",
+            "21朱可棠", "27范語宸", "08郭祐維", "22吳政潔", "18吳禹樂", "25林語彤",
+            "10陳煥珺", "24林奕彤", "03阮宥翔", "04阮郁宸", "32戴薇", "07莊弘彥"
         ];
+
         const class3Names = [
-            "同學1", "同學2", "同學3", "同學4", "同學5", "同學6",
-            "同學7", "同學8", "同學9", "同學10", "同學11", "同學12",
-            "同學13", "同學14", "同學15", "同學16", "同學17", "同學18",
-            "同學19", "同學20", "同學21", "同學22", "同學23", "同學24",
-            "同學25", "同學26", "同學27", "同學28", "同學29", "同學30",
-            "預備1", "預備2", "預備3", "預備4", "預備5", "預備6"
+            "預備1", "預備2", "預備3", "預備4", "預備5", "預備6",
+            "學生1", "學生2", "學生3", "學生4", "學生5", "學生6",
+            "學生7", "學生8", "學生9", "學生10", "學生11", "學生12",
+            "學生13", "學生14", "學生15", "學生16", "學生17", "學生18",
+            "學生19", "學生20", "學生21", "學生22", "學生23", "學生24",
+            "學生25", "學生26", "學生27", "學生28", "學生29", "學生30"
         ];
 
         const allDefaultNames = [class1Names, class2Names, class3Names];
@@ -302,7 +300,7 @@
         }
 
         function loadData() {
-            const saved = localStorage.getItem('svt_classroom_v4');
+            const saved = localStorage.getItem('svt_classroom_v5');
             if (saved) {
                 try { data = JSON.parse(saved); } catch (e) { console.error(e); }
             }
@@ -312,7 +310,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('svt_classroom_v4', JSON.stringify(data));
+            localStorage.setItem('svt_classroom_v5', JSON.stringify(data));
         }
 
         function setMode(mode) {
@@ -334,21 +332,13 @@
             
             const currentData = data[currentClassIdx];
             
-            // 邏輯調整：將最後 6 個 (索引 30-35，即預備位) 移到最前面顯示
-            const displayOrder = [
-                ...currentData.slice(30, 36), // 預備 1-6
-                ...currentData.slice(0, 30)   // 同學 1-30
-            ];
-
-            displayOrder.forEach((student) => {
-                // 找出原始索引以利更新數據
-                const originalIdx = currentData.findIndex(s => s.id === student.id);
-                
+            // 直接依照陣列順序渲染，索引 0 就是左上角
+            currentData.forEach((student, idx) => {
                 const seat = document.createElement('div');
                 seat.className = 'seat';
                 seat.onclick = () => {
-                    if (currentMode === 'edit') editName(originalIdx);
-                    else updateScore(originalIdx, currentMode === 'minus' ? -1 : 1);
+                    if (currentMode === 'edit') editName(idx);
+                    else updateScore(idx, currentMode === 'minus' ? -1 : 1);
                 };
                 
                 seat.innerHTML = `
@@ -369,7 +359,7 @@
         function editName(idx) {
             const newName = prompt(`修改姓名：`, data[currentClassIdx][idx].name);
             if (newName !== null) {
-                data[currentClassIdx][idx].name = newName.trim() || `學生 ${data[currentClassIdx][idx].id}`;
+                data[currentClassIdx][idx].name = newName.trim() || `席位 ${data[currentClassIdx][idx].id}`;
                 saveData();
                 renderSeats();
             }
