@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>加分系統</title>
+    <style>
+        :root {
+            --rose-quartz: #F7CAC9;
+            --serenity: #92A8D1;
+            --minus-color: #E57373;
+            --edit-color: #FFB74D;
+            --white: rgba(255, 255, 255, 0.95);
+            --text-color: #555;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
+            background: linear-gradient(135deg, var(--rose-quartz) 0%, var(--serenity) 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+            padding: 5px; /* 極小邊距以增加可用空間 */
+            overflow-x: hidden;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 5px;
+            color: white;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 { margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+
+        .controls {
+            width: 100%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: row; /* 改為橫向以節省垂直空間 */
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            background: var(--white);
+            color: var(--serenity);
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn.active {
+            background: var(--serenity);
+            color: white;
+        }
+
+        .mode-switch {
+            display: flex;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 2px;
+            border-radius: 50px;
+            gap: 2px;
+        }
+
+        .mode-btn {
+            padding: 6px 12px;
+            border-radius: 40px;
+            border: none;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            background: transparent;
+            color: #fff;
+        }
+
+        body.mode-plus #plusBtn { background: #fff; color: var(--serenity); }
+        body.mode-minus #minusBtn { background: var(--minus-color); color: white; }
+        body.mode-edit #editBtn { background: var(--edit-color); color: white; }
+
+        .classroom-container {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(15px);
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 1100px; /* 增加最大寬度 */
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 5px;
+        }
+
+        .seat {
+            aspect-ratio: 2.2 / 1; /* 格子變得很寬、很矮 */
+            background: var(--white);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: row; /* 姓名與分數橫向排列或調整佈局 */
+            align-items: center;
+            justify-content: space-around;
+            cursor: pointer;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+            transition: all 0.15s ease;
+            padding: 0 5px;
+        }
+
+        .seat:active { transform: scale(0.96); }
+
+        .seat-num {
+            font-size: 9px;
+            color: #ccc;
+            position: absolute;
+            top: 1px;
+            left: 3px;
+        }
+
+        .seat-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            flex: 1;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding-right: 5px;
+            margin-top: 2px;
+        }
+
+        .seat-score {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--serenity);
+            min-width: 30px;
+            text-align: center;
+        }
+
+        body.mode-minus .seat-score { color: var(--minus-color); }
+        body.mode-edit .seat { background: #FFFDE7; border-color: var(--edit-color); }
+
+        .podium {
+            width: 100%;
+            max-width: 250px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid white;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+            letter-spacing: 5px;
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .footer-actions {
+            margin-top: 5px;
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .action-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid white;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+        }
+
+        .msg-box {
+            position: fixed;
+            top: 5px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 50px;
+            display: none;
+            z-index: 100;
+            font-size: 11px;
+        }
+
+        @media (min-width: 768px) {
+            h1 { font-size: 22px; }
+            .seat-name { font-size: 15px; }
+            .seat-score { font-size: 28px; }
+            .grid { gap: 8px; }
+        }
+    </style>
+</head>
+<body id="mainBody" class="mode-plus">
+
+    <header>
+        <h1>SVT SCORE BOARD</h1>
+    </header>
+
+    <div class="controls">
+        <div class="tabs">
+            <button id="tab0" class="tab-btn active" onclick="switchClass(0)">703</button>
+            <button id="tab1" class="tab-btn" onclick="switchClass(1)">715</button>
+            <button id="tab2" class="tab-btn" onclick="switchClass(2)">721</button>
+        </div>
+
+        <div class="mode-switch">
+            <button id="plusBtn" class="mode-btn" onclick="setMode('plus')">加分 (+)</button>
+            <button id="minusBtn" class="mode-btn" onclick="setMode('minus')">減分 (-)</button>
+            <button id="editBtn" class="mode-btn" onclick="setMode('edit')">編輯 ✎</button>
+        </div>
+    </div>
+
+    <div class="classroom-container">
+        <div class="grid" id="seatGrid"></div>
+    </div>
+
+    <div class="podium">講台 (PODIUM)</div>
+
+    <div class="footer-actions">
+        <button class="action-btn" onclick="resetCurrentScores()">重置分數</button>
+        <button class="action-btn" onclick="resetCurrentNames()">還原名單</button>
+        <button class="action-btn" onclick="exportData()">備份</button>
+    </div>
+
+    <div id="msg" class="msg-box"></div>
+
+    <script>
+        // ==========================================
+        // 名單設定：1-30 是同學，31-36 是預備
+        // ==========================================
+        const generateNames = (prefix, extraPrefix) => {
+            let names = Array.from({length: 30}, (_, i) => `${prefix}${i + 1}`);
+            let extras = Array.from({length: 6}, (_, i) => `${extraPrefix}${i + 1}`);
+            return [...names, ...extras];
+        };
+
+        const class1Names = [
+            "同學1", "同學2", "同學3", "同學4", "同學5", "同學6",
+            "同學7", "同學8", "同學9", "同學10", "同學11", "同學12",
+            "同學13", "同學14", "同學15", "同學16", "同學17", "同學18",
+            "同學19", "同學20", "同學21", "同學22", "同學23", "同學24",
+            "同學25", "同學26", "同學27", "同學28", "同學29", "同學30",
+            "預備1", "預備2", "預備3", "預備4", "預備5", "預備6"
+        ];
+        const class2Names = [
+            "同學1", "同學2", "同學3", "03阮宥翔", "24林奕彤", "10陳煥珺",
+            "同學7", "同學8", "同學9", "08郭祐維", "27范語宸", "21朱可棠",
+            "同學13", "同學14", "同學15", "26邱沐妍", "09陳昱澔", "29張巧樂",
+            "同學19", "同學20", "同學21", "12黃柏凱", "05林杰宇", "02李承哲",
+            "同學25", "同學26", "15劉德安", "11程子珅", "14劉峰邑", "空位",
+            "空位", "空位", "空位", "空位", "空位", "空位"
+        ];
+        const class3Names = [
+            "同學1", "同學2", "同學3", "同學4", "同學5", "同學6",
+            "同學7", "同學8", "同學9", "同學10", "同學11", "同學12",
+            "同學13", "同學14", "同學15", "同學16", "同學17", "同學18",
+            "同學19", "同學20", "同學21", "同學22", "同學23", "同學24",
+            "同學25", "同學26", "同學27", "同學28", "同學29", "同學30",
+            "預備1", "預備2", "預備3", "預備4", "預備5", "預備6"
+        ];
+
+        const allDefaultNames = [class1Names, class2Names, class3Names];
+
+        const SEAT_COUNT = 36;
+        let currentClassIdx = 0;
+        let currentMode = 'plus';
+        let data = [null, null, null];
+
+        function generateInitialData(classIdx) {
+            const names = allDefaultNames[classIdx];
+            return Array.from({ length: SEAT_COUNT }, (_, i) => ({
+                id: i + 1,
+                name: names[i] || `席位 ${i + 1}`,
+                score: 0
+            }));
+        }
+
+        function loadData() {
+            const saved = localStorage.getItem('svt_classroom_v4');
+            if (saved) {
+                try { data = JSON.parse(saved); } catch (e) { console.error(e); }
+            }
+            for(let i=0; i<3; i++) {
+                if(!data[i] || data[i].length < SEAT_COUNT) data[i] = generateInitialData(i);
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('svt_classroom_v4', JSON.stringify(data));
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('mainBody').className = `mode-${mode}`;
+            showMsg(mode === 'edit' ? "編輯模式" : (mode === 'minus' ? "減分模式" : "加分模式"));
+        }
+
+        function showMsg(text) {
+            const msg = document.getElementById('msg');
+            msg.innerText = text;
+            msg.style.display = 'block';
+            setTimeout(() => { msg.style.display = 'none'; }, 1500);
+        }
+
+        function renderSeats() {
+            const grid = document.getElementById('seatGrid');
+            grid.innerHTML = '';
+            
+            const currentData = data[currentClassIdx];
+            
+            // 邏輯調整：將最後 6 個 (索引 30-35，即預備位) 移到最前面顯示
+            const displayOrder = [
+                ...currentData.slice(30, 36), // 預備 1-6
+                ...currentData.slice(0, 30)   // 同學 1-30
+            ];
+
+            displayOrder.forEach((student) => {
+                // 找出原始索引以利更新數據
+                const originalIdx = currentData.findIndex(s => s.id === student.id);
+                
+                const seat = document.createElement('div');
+                seat.className = 'seat';
+                seat.onclick = () => {
+                    if (currentMode === 'edit') editName(originalIdx);
+                    else updateScore(originalIdx, currentMode === 'minus' ? -1 : 1);
+                };
+                
+                seat.innerHTML = `
+                    <div class="seat-num">${student.id}</div>
+                    <div class="seat-name">${student.name}</div>
+                    <div class="seat-score">${student.score}</div>
+                `;
+                grid.appendChild(seat);
+            });
+        }
+
+        function updateScore(idx, delta) {
+            data[currentClassIdx][idx].score = Math.max(0, data[currentClassIdx][idx].score + delta);
+            saveData();
+            renderSeats();
+        }
+
+        function editName(idx) {
+            const newName = prompt(`修改姓名：`, data[currentClassIdx][idx].name);
+            if (newName !== null) {
+                data[currentClassIdx][idx].name = newName.trim() || `學生 ${data[currentClassIdx][idx].id}`;
+                saveData();
+                renderSeats();
+            }
+        }
+
+        function switchClass(idx) {
+            currentClassIdx = idx;
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
+            renderSeats();
+            showMsg(`切換至 CLASS ${idx + 1}`);
+        }
+
+        function resetCurrentScores() {
+            if (confirm(`重置本班分數？`)) {
+                data[currentClassIdx].forEach(s => s.score = 0);
+                saveData();
+                renderSeats();
+            }
+        }
+
+        function resetCurrentNames() {
+            if (confirm(`還原預設名單？`)) {
+                const defaults = allDefaultNames[currentClassIdx];
+                data[currentClassIdx].forEach((s, i) => s.name = defaults[i]);
+                saveData();
+                renderSeats();
+            }
+        }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `SVT_Backup.json`; a.click();
+        }
+
+        window.onload = () => { loadData(); renderSeats(); setMode('plus'); };
+    </script>
+</body>
+</html>
