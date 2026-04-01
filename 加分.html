@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>加分</title>
+    <title>個人加分</title>
     <style>
         :root {
             --rose-quartz: #F7CAC9;
@@ -12,6 +12,8 @@
             --edit-color: #FFB74D;
             --white: rgba(255, 255, 255, 0.95);
             --text-color: #555;
+            --grid-cols: 6; 
+            --grid-rows: 6;
         }
 
         * {
@@ -24,19 +26,19 @@
             font-family: "PingFang TC", "Microsoft JhengHei", sans-serif;
             background: linear-gradient(135deg, var(--rose-quartz) 0%, var(--serenity) 100%);
             background-attachment: fixed;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: var(--text-color);
             padding: 5px;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
         header {
             text-align: center;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             color: white;
             text-shadow: 1px 1px 4px rgba(0,0,0,0.1);
         }
@@ -45,29 +47,29 @@
 
         .controls {
             width: 100%;
-            max-width: 700px;
+            max-width: 800px;
             display: flex;
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
             margin-bottom: 5px;
         }
 
         .tabs {
             display: flex;
-            gap: 4px;
+            gap: 3px;
         }
 
         .tab-btn {
-            padding: 6px 12px;
+            padding: 6px 10px;
             border: none;
             border-radius: 8px;
             background: var(--white);
             color: var(--serenity);
             cursor: pointer;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 11px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
@@ -85,7 +87,7 @@
         }
 
         .mode-btn {
-            padding: 6px 12px;
+            padding: 6px 10px;
             border-radius: 40px;
             border: none;
             font-weight: bold;
@@ -106,17 +108,22 @@
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             width: 100%;
-            max-width: 1100px;
+            max-width: 1200px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0; 
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(6, 1fr);
+            grid-template-columns: repeat(var(--grid-cols), 1fr);
+            grid-template-rows: repeat(var(--grid-rows), 1fr);
             gap: 5px;
+            height: 100%;
         }
 
         .seat {
-            aspect-ratio: 2.2 / 1;
             background: var(--white);
             border-radius: 6px;
             display: flex;
@@ -129,12 +136,13 @@
             border: 2px solid transparent;
             transition: all 0.15s ease;
             padding: 0 5px;
+            min-height: 0;
         }
 
         .seat:active { transform: scale(0.96); }
 
         .seat-num {
-            font-size: 9px;
+            font-size: 8px;
             color: #ccc;
             position: absolute;
             top: 1px;
@@ -142,7 +150,7 @@
         }
 
         .seat-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #555;
             flex: 1;
@@ -150,15 +158,14 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            padding-right: 5px;
-            margin-top: 2px;
+            padding-right: 2px;
         }
 
         .seat-score {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: bold;
             color: var(--serenity);
-            min-width: 30px;
+            min-width: 25px;
             text-align: center;
         }
 
@@ -168,7 +175,7 @@
         .podium {
             width: 100%;
             max-width: 250px;
-            padding: 5px;
+            padding: 4px;
             background: rgba(255, 255, 255, 0.4);
             border: 1px solid white;
             color: white;
@@ -176,12 +183,12 @@
             border-radius: 8px;
             font-weight: bold;
             letter-spacing: 5px;
-            margin-top: 5px;
+            margin: 5px 0;
             font-size: 12px;
         }
 
         .footer-actions {
-            margin-top: 5px;
+            margin-bottom: 5px;
             display: flex;
             gap: 5px;
             justify-content: center;
@@ -196,6 +203,49 @@
             font-size: 10px;
         }
 
+        /* 編輯視窗 (Modal) */
+        #editModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 2px solid var(--rose-quartz);
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+        }
+        .modal-btns button {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-confirm { background: var(--serenity); color: white; }
+        .btn-cancel { background: #eee; color: #777; }
+
         .msg-box {
             position: fixed;
             top: 5px;
@@ -209,17 +259,18 @@
         }
 
         @media (min-width: 768px) {
-            h1 { font-size: 22px; }
-            .seat-name { font-size: 15px; }
-            .seat-score { font-size: 28px; }
+            h1 { font-size: 20px; }
+            .seat-name { font-size: 14px; }
+            .seat-score { font-size: 24px; }
             .grid { gap: 8px; }
+            .seat-num { font-size: 10px; }
         }
     </style>
 </head>
 <body id="mainBody" class="mode-plus">
 
     <header>
-        <h1>SVT SCORE BOARD</h1>
+        <h1>個人加分</h1>
     </header>
 
     <div class="controls">
@@ -248,75 +299,106 @@
         <button class="action-btn" onclick="exportData()">備份</button>
     </div>
 
+    <!-- 自訂編輯視窗 -->
+    <div id="editModal">
+        <div class="modal-content">
+            <h3 id="modalTitle" style="margin:0; color: var(--serenity);">修改姓名</h3>
+            <input type="text" id="nameInput" placeholder="請輸入姓名" maxlength="10">
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="closeModal()">取消</button>
+                <button class="btn-confirm" onclick="confirmEditName()">確定</button>
+            </div>
+        </div>
+    </div>
+
     <div id="msg" class="msg-box"></div>
 
     <script>
-        // ==========================================
-        // 名單設定：現在順序從左上角開始編號 (1-36)
-        // 第一排 (1-6)：預留位置
-        // 後續排 (7-36)：學生名單
-        // ==========================================
-        const class1Names = [
-            "空位", "空位", "空位", "空位", "空位", "空位", // 第一排
-            "05周佑恩", "15鄔紹廷", "同學3", "同學4", "同學5", "同學6",
-            "30趙紫妘", "同學8", "同學9", "29黃麗璇", "同學11", "同學12",
-            "同學13", "同學14", "同學15", "同學16", "同學17", "同學18",
-            "同學19", "17劉書睿", "同學21", "同學22", "同學23", "同學24",
-            "同學25", "12黃奕文", "同學27", "09張祐恩", "同學29", "16劉承翰"
+        const classConfigs = [
+            {
+                id: "Class 1",
+                cols: 7,
+                rows: 5,
+                names: [
+                    "空位", "15鄔紹廷", "14楊承瀚", "同學4", "同學5", "同學6", "空位",
+                    "05周佑恩", "21吳心羚", "24林語晨", "32潘以薰", "29黃麗璇", "同學13", "同學14",
+                    "30趙紫妘", "13黃宥升", "31劉睿宜", "07徐子恩", "25洪詩晴", "27曾浩嵐", "同學21",
+                    "03李承恩", "同學1", "12黃奕文", "22吳宣宜", "10張樂懷", "18陳奕凱", "同學28",
+                    "空位", "17劉書睿", "02吳俊齊", "09張祐恩", "01方崇安", "08張育睿", "16劉承翰"
+                ]
+            },
+            {
+                id: "Class 2",
+                cols: 6, 
+                rows: 6,
+                names: [
+					"空位", "空位", "空位", "空位", "空位", "空位",
+					"空位", "14劉峰邑", "11程子珅", "15劉德安", "06林宥騏", "空位",
+					"02李承哲", "05林杰宇", "12黃柏凱", "31楊媃安", "28徐畇靖", "23吳庭樂",
+					"29張巧樂", "09陳昱澔", "26邱沐妍", "16劉鈞皓", "17顏祖冰", "30許絜淅",
+					"21朱可棠", "27范語宸", "08郭祐維", "22吳政潔", "18吳禹樂", "25林語彤",
+					"10陳煥珺", "24林奕彤", "03阮宥翔", "04阮郁宸", "32戴薇", "07莊弘彥"
+                ]
+            },
+            {
+                id: "Class 3",
+                cols: 6,
+                rows: 6,
+                names: [
+                    "空位", "12彭宇立", "空位", "空位", "08林銓崴", "空位",
+                    "16劉醇禹", "22吳映頤", "03吳詠翔", "28陳媘恩", "09張彣鴻", "10張博鈞",
+                    "33劉羽羚", "15劉景哲", "23邱琪芮", "35鄧又文", "30楊侑蓁", "25張允希",
+                    "05李禹辰", "21吳芮潁", "04李勁銳", "11許柏健", "17陳沛冲", "14劉冠辰",
+                    "24徐琦玟", "26張姵宜", "02吳東樺", "34劉妤暄", "13曾筵善", "27陳可甯",
+                    "01王星硯", "31詹詠琳", "32廖昱捷", "06李哲旭", "29彭姿瑜", "07沈品睿"
+                ]
+            }
         ];
 
-        const class2Names = [
-            "空位", "空位", "空位", "空位", "空位", "空位",
-            "空位", "14劉峰邑", "J11程子珅", "15劉德安", "06林宥騏", "空位",
-            "02李承哲", "05林杰宇", "12黃柏凱", "31楊媃安", "28徐畇靖", "23吳庭樂",
-            "29張巧樂", "09陳昱澔", "26邱沐妍", "16劉鈞皓", "17顏祖冰", "30許絜淅",
-            "21朱可棠", "27范語宸", "08郭祐維", "22吳政潔", "18吳禹樂", "25林語彤",
-            "10陳煥珺", "24林奕彤", "03阮宥翔", "04阮郁宸", "32戴薇", "07莊弘彥"
-        ];
-
-        const class3Names = [
-            "空位", "空位", "預備3", "預備4", "預備5", "空位",
-            "10張博鈞", "學生2", "學生3", "學生4", "學生5", "學生6",
-            "學生7", "學生8", "學生9", "學生10", "學生11", "學生12",
-            "學生13", "學生14", "學生15", "學生16", "學生17", "學生18",
-            "學生19", "學生20", "學生21", "學生22", "06李哲旭", "學生24",
-            "03吳詠翔", "學生26", "13曾筵善", "02吳東樺", "33劉羽羚", "05李禹辰"
-        ];
-
-        const allDefaultNames = [class1Names, class2Names, class3Names];
-
-        const SEAT_COUNT = 36;
         let currentClassIdx = 0;
         let currentMode = 'plus';
         let data = [null, null, null];
+        let editingIdx = -1; // 當前正在編輯的索引
 
         function generateInitialData(classIdx) {
-            const names = allDefaultNames[classIdx];
-            return Array.from({ length: SEAT_COUNT }, (_, i) => ({
+            const names = classConfigs[classIdx].names;
+            return Array.from({ length: names.length }, (_, i) => ({
                 id: i + 1,
-                name: names[i] || `席位 ${i + 1}`,
+                name: names[i],
                 score: 0
             }));
         }
 
         function loadData() {
-            const saved = localStorage.getItem('svt_classroom_v5');
+            const saved = localStorage.getItem('svt_classroom_v10');
             if (saved) {
-                try { data = JSON.parse(saved); } catch (e) { console.error(e); }
+                try { 
+                    data = JSON.parse(saved); 
+                    classConfigs.forEach((config, i) => {
+                        if (!data[i] || data[i].length < config.names.length) {
+                            const current = data[i] || [];
+                            const start = current.length;
+                            for (let j = start; j < config.names.length; j++) {
+                                current.push({ id: j + 1, name: config.names[j], score: 0 });
+                            }
+                            data[i] = current;
+                        }
+                    });
+                } catch (e) { console.error(e); }
             }
-            for(let i=0; i<3; i++) {
-                if(!data[i] || data[i].length < SEAT_COUNT) data[i] = generateInitialData(i);
+            for(let i=0; i<classConfigs.length; i++) {
+                if(!data[i]) data[i] = generateInitialData(i);
             }
         }
 
         function saveData() {
-            localStorage.setItem('svt_classroom_v5', JSON.stringify(data));
+            localStorage.setItem('svt_classroom_v10', JSON.stringify(data));
         }
 
         function setMode(mode) {
             currentMode = mode;
             document.getElementById('mainBody').className = `mode-${mode}`;
-            showMsg(mode === 'edit' ? "編輯模式" : (mode === 'minus' ? "減分模式" : "加分模式"));
+            showMsg(mode === 'edit' ? "編輯模式：點擊座位改名" : (mode === 'minus' ? "減分模式" : "加分模式"));
         }
 
         function showMsg(text) {
@@ -330,14 +412,18 @@
             const grid = document.getElementById('seatGrid');
             grid.innerHTML = '';
             
+            const config = classConfigs[currentClassIdx];
+            document.documentElement.style.setProperty('--grid-cols', config.cols);
+            document.documentElement.style.setProperty('--grid-rows', config.rows);
+
             const currentData = data[currentClassIdx];
+            const displayCount = config.cols * config.rows;
             
-            // 直接依照陣列順序渲染，索引 0 就是左上角
-            currentData.forEach((student, idx) => {
+            currentData.slice(0, displayCount).forEach((student, idx) => {
                 const seat = document.createElement('div');
                 seat.className = 'seat';
                 seat.onclick = () => {
-                    if (currentMode === 'edit') editName(idx);
+                    if (currentMode === 'edit') openEditModal(idx);
                     else updateScore(idx, currentMode === 'minus' ? -1 : 1);
                 };
                 
@@ -351,19 +437,41 @@
         }
 
         function updateScore(idx, delta) {
-            data[currentClassIdx][idx].score = Math.max(0, data[currentClassIdx][idx].score + delta);
+            data[currentClassIdx][idx].score += delta;
             saveData();
             renderSeats();
         }
 
-        function editName(idx) {
-            const newName = prompt(`修改姓名：`, data[currentClassIdx][idx].name);
-            if (newName !== null) {
-                data[currentClassIdx][idx].name = newName.trim() || `席位 ${data[currentClassIdx][idx].id}`;
-                saveData();
-                renderSeats();
-            }
+        // --- 編輯功能優化 ---
+        function openEditModal(idx) {
+            editingIdx = idx;
+            const student = data[currentClassIdx][idx];
+            document.getElementById('modalTitle').innerText = `修改 ${student.id} 號姓名`;
+            document.getElementById('nameInput').value = student.name;
+            document.getElementById('editModal').style.display = 'flex';
+            // 自動聚焦
+            setTimeout(() => document.getElementById('nameInput').focus(), 100);
         }
+
+        function closeModal() {
+            document.getElementById('editModal').style.display = 'none';
+            editingIdx = -1;
+        }
+
+        function confirmEditName() {
+            if (editingIdx === -1) return;
+            const newName = document.getElementById('nameInput').value.trim();
+            data[currentClassIdx][editingIdx].name = newName || `席位 ${data[currentClassIdx][editingIdx].id}`;
+            saveData();
+            renderSeats();
+            closeModal();
+            showMsg("姓名已更新");
+        }
+
+        // 支援 Enter 鍵儲存
+        document.getElementById('nameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') confirmEditName();
+        });
 
         function switchClass(idx) {
             currentClassIdx = idx;
@@ -382,8 +490,10 @@
 
         function resetCurrentNames() {
             if (confirm(`還原預設名單？`)) {
-                const defaults = allDefaultNames[currentClassIdx];
-                data[currentClassIdx].forEach((s, i) => s.name = defaults[i]);
+                const defaults = classConfigs[currentClassIdx].names;
+                data[currentClassIdx].forEach((s, i) => {
+                    if (defaults[i]) s.name = defaults[i];
+                });
                 saveData();
                 renderSeats();
             }
@@ -393,7 +503,7 @@
             const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = `SVT_Backup.json`; a.click();
+            a.href = url; a.download = `SVT_Backup_V10.json`; a.click();
         }
 
         window.onload = () => { loadData(); renderSeats(); setMode('plus'); };
