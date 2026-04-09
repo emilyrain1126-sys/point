@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>個人加分</title>
+    <title>SVT 班級加分系統</title>
     <style>
         :root {
             --rose-quartz: #F7CAC9;
             --serenity: #92A8D1;
             --minus-color: #E57373;
-            --edit-color: #FFB74D;
             --white: rgba(255, 255, 255, 0.95);
             --text-color: #555;
             --grid-cols: 6; 
@@ -36,6 +35,43 @@
             overflow: hidden;
         }
 
+        .info-bar {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 15px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .last-edit-info {
+            font-size: 12px;
+        }
+
+        .time-display-group {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        #currentTime {
+            font-size: 11px;
+            opacity: 0.9;
+        }
+
+        #timer {
+            background: rgba(255,255,255,0.2);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 13px;
+            min-width: 120px;
+            text-align: center;
+        }
+
         header {
             text-align: center;
             margin-bottom: 2px;
@@ -52,7 +88,7 @@
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            gap: 8px;
+            gap: 15px;
             margin-bottom: 5px;
         }
 
@@ -87,7 +123,7 @@
         }
 
         .mode-btn {
-            padding: 6px 10px;
+            padding: 6px 15px;
             border-radius: 40px;
             border: none;
             font-weight: bold;
@@ -99,7 +135,6 @@
 
         body.mode-plus #plusBtn { background: #fff; color: var(--serenity); }
         body.mode-minus #minusBtn { background: var(--minus-color); color: white; }
-        body.mode-edit #editBtn { background: var(--edit-color); color: white; }
 
         .classroom-container {
             background: rgba(255, 255, 255, 0.25);
@@ -170,7 +205,6 @@
         }
 
         body.mode-minus .seat-score { color: var(--minus-color); }
-        body.mode-edit .seat { background: #FFFDE7; border-color: var(--edit-color); }
 
         .podium {
             width: 100%;
@@ -198,64 +232,22 @@
             background: rgba(255,255,255,0.2);
             border: 1px solid white;
             color: white;
-            padding: 4px 8px;
+            padding: 4px 12px;
             border-radius: 6px;
             font-size: 10px;
         }
 
-        /* 編輯視窗 (Modal) */
-        #editModal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            width: 80%;
-            max-width: 300px;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        }
-        .modal-content input {
-            width: 100%;
-            padding: 10px;
-            margin: 15px 0;
-            border: 2px solid var(--rose-quartz);
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-        }
-        .modal-btns {
-            display: flex;
-            gap: 10px;
-        }
-        .modal-btns button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-confirm { background: var(--serenity); color: white; }
-        .btn-cancel { background: #eee; color: #777; }
-
         .msg-box {
             position: fixed;
-            top: 5px;
+            top: 50%;
             background: rgba(0,0,0,0.7);
             color: white;
-            padding: 5px 15px;
+            padding: 10px 20px;
             border-radius: 50px;
             display: none;
             z-index: 100;
-            font-size: 11px;
+            font-size: 12px;
+            transform: translateY(-50%);
         }
 
         @media (min-width: 768px) {
@@ -264,26 +256,36 @@
             .seat-score { font-size: 24px; }
             .grid { gap: 8px; }
             .seat-num { font-size: 10px; }
+            .info-bar { font-size: 14px; }
+            #currentTime { font-size: 12px; }
+            #timer { font-size: 15px; }
         }
     </style>
 </head>
 <body id="mainBody" class="mode-plus">
 
+    <div class="info-bar">
+        <div id="lastEdit" class="last-edit-info">最後編輯: 無紀錄</div>
+        <div class="time-display-group">
+            <div id="currentTime">現在時間: --:--:--</div>
+            <div id="timer">偵測課表中...</div>
+        </div>
+    </div>
+
     <header>
-        <h1>個人加分</h1>
+        <h1>個人加分紀錄</h1>
     </header>
 
     <div class="controls">
         <div class="tabs">
-            <button id="tab0" class="tab-btn active" onclick="switchClass(0)">703</button>
-            <button id="tab1" class="tab-btn" onclick="switchClass(1)">715</button>
-            <button id="tab2" class="tab-btn" onclick="switchClass(2)">721</button>
+            <button id="tab0" class="tab-btn active" onclick="switchClass(0)">CLASS 1</button>
+            <button id="tab1" class="tab-btn" onclick="switchClass(1)">CLASS 2</button>
+            <button id="tab2" class="tab-btn" onclick="switchClass(2)">CLASS 3</button>
         </div>
 
         <div class="mode-switch">
             <button id="plusBtn" class="mode-btn" onclick="setMode('plus')">加分 (+)</button>
             <button id="minusBtn" class="mode-btn" onclick="setMode('minus')">減分 (-)</button>
-            <button id="editBtn" class="mode-btn" onclick="setMode('edit')">編輯 ✎</button>
         </div>
     </div>
 
@@ -294,26 +296,26 @@
     <div class="podium">講台 (PODIUM)</div>
 
     <div class="footer-actions">
-        <button class="action-btn" onclick="resetCurrentScores()">重置分數</button>
-        <button class="action-btn" onclick="resetCurrentNames()">還原名單</button>
-        <button class="action-btn" onclick="exportData()">備份</button>
-    </div>
-
-    <!-- 自訂編輯視窗 -->
-    <div id="editModal">
-        <div class="modal-content">
-            <h3 id="modalTitle" style="margin:0; color: var(--serenity);">修改姓名</h3>
-            <input type="text" id="nameInput" placeholder="請輸入姓名" maxlength="10">
-            <div class="modal-btns">
-                <button class="btn-cancel" onclick="closeModal()">取消</button>
-                <button class="btn-confirm" onclick="confirmEditName()">確定</button>
-            </div>
-        </div>
+        <button class="action-btn" onclick="resetCurrentScores()">重置本班分數</button>
+        <button class="action-btn" onclick="exportData()">導出備份</button>
     </div>
 
     <div id="msg" class="msg-box"></div>
 
     <script>
+
+        const schoolSchedule = [
+            { name: "第一節", start: "08:20", end: "09:05" },
+            { name: "第二節", start: "09:15", end: "10:00" },
+            { name: "第三節", start: "10:10", end: "10:55" },
+            { name: "第四節", start: "11:05", end: "11:50" },
+            { name: "午休時間", start: "11:50", end: "13:00" },
+            { name: "第五節", start: "13:05", end: "13:50" },
+            { name: "第六節", start: "14:00", end: "14:45" },
+            { name: "第七節", start: "14:55", end: "15:40" },
+            { name: "第八節", start: "15:50", end: "16:35" }
+        ];
+
         const classConfigs = [
             {
                 id: "Class 1",
@@ -357,34 +359,24 @@
 
         let currentClassIdx = 0;
         let currentMode = 'plus';
-        let data = [null, null, null];
-        let editingIdx = -1; // 當前正在編輯的索引
+        let data = [];
 
         function generateInitialData(classIdx) {
             const names = classConfigs[classIdx].names;
-            return Array.from({ length: names.length }, (_, i) => ({
-                id: i + 1,
-                name: names[i],
-                score: 0
-            }));
+            return {
+                lastUpdated: "無紀錄",
+                students: Array.from({ length: names.length }, (_, i) => ({
+                    id: i + 1,
+                    name: names[i],
+                    score: 0
+                }))
+            };
         }
 
         function loadData() {
-            const saved = localStorage.getItem('svt_classroom_v10');
+            const saved = localStorage.getItem('svt_classroom_v13');
             if (saved) {
-                try { 
-                    data = JSON.parse(saved); 
-                    classConfigs.forEach((config, i) => {
-                        if (!data[i] || data[i].length < config.names.length) {
-                            const current = data[i] || [];
-                            const start = current.length;
-                            for (let j = start; j < config.names.length; j++) {
-                                current.push({ id: j + 1, name: config.names[j], score: 0 });
-                            }
-                            data[i] = current;
-                        }
-                    });
-                } catch (e) { console.error(e); }
+                try { data = JSON.parse(saved); } catch (e) { console.error(e); }
             }
             for(let i=0; i<classConfigs.length; i++) {
                 if(!data[i]) data[i] = generateInitialData(i);
@@ -392,13 +384,66 @@
         }
 
         function saveData() {
-            localStorage.setItem('svt_classroom_v10', JSON.stringify(data));
+            localStorage.setItem('svt_classroom_v13', JSON.stringify(data));
+        }
+
+        // --- 時間自動計算功能 ---
+        function updateAllClocks() {
+            const now = new Date();
+            
+            // 1. 更新現在時間
+            const h = now.getHours();
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('currentTime').innerText = `現在時間: ${h}:${m}:${s}`;
+
+            // 2. 自動計算課表
+            const currentTimeStr = `${String(h).padStart(2, '0')}:${m}`;
+            let statusText = "目前非上課時間";
+            
+            // 轉為分鐘數方便比較
+            const currentTotalMin = h * 60 + now.getMinutes();
+
+            for (let i = 0; i < schoolSchedule.length; i++) {
+                const item = schoolSchedule[i];
+                const [sH, sM] = item.start.split(':').map(Number);
+                const [eH, eM] = item.end.split(':').map(Number);
+                const startTotal = sH * 60 + sM;
+                const endTotal = eH * 60 + eM;
+
+                // 判斷是否在上課時間內
+                if (currentTotalMin >= startTotal && currentTotalMin < endTotal) {
+                    const diff = endTotal - currentTotalMin - 1;
+                    const secDiff = 60 - now.getSeconds();
+                    statusText = `${item.name} 距離下課: ${diff}:${String(secDiff === 60 ? 0 : secDiff).padStart(2, '0')}`;
+                    break;
+                }
+                
+                // 判斷是否在下課時間內 (在這一節課結束後，下一節課開始前)
+                if (i < schoolSchedule.length - 1) {
+                    const nextItem = schoolSchedule[i+1];
+                    const [nsH, nsM] = nextItem.start.split(':').map(Number);
+                    const nextStartTotal = nsH * 60 + nsM;
+                    if (currentTotalMin >= endTotal && currentTotalMin < nextStartTotal) {
+                        statusText = "下課休息中 ☕";
+                        break;
+                    }
+                }
+            }
+            document.getElementById('timer').innerText = statusText;
+        }
+
+        function updateLastEditTime() {
+            const now = new Date();
+            const timeStr = `${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+            data[currentClassIdx].lastUpdated = timeStr;
+            document.getElementById('lastEdit').innerText = `最後編輯: ${timeStr}`;
         }
 
         function setMode(mode) {
             currentMode = mode;
             document.getElementById('mainBody').className = `mode-${mode}`;
-            showMsg(mode === 'edit' ? "編輯模式：點擊座位改名" : (mode === 'minus' ? "減分模式" : "加分模式"));
+            showMsg(mode === 'minus' ? "減分模式" : "加分模式");
         }
 
         function showMsg(text) {
@@ -413,19 +458,18 @@
             grid.innerHTML = '';
             
             const config = classConfigs[currentClassIdx];
+            const classData = data[currentClassIdx];
+            
             document.documentElement.style.setProperty('--grid-cols', config.cols);
             document.documentElement.style.setProperty('--grid-rows', config.rows);
+            document.getElementById('lastEdit').innerText = `最後編輯: ${classData.lastUpdated}`;
 
-            const currentData = data[currentClassIdx];
             const displayCount = config.cols * config.rows;
             
-            currentData.slice(0, displayCount).forEach((student, idx) => {
+            classData.students.slice(0, displayCount).forEach((student, idx) => {
                 const seat = document.createElement('div');
                 seat.className = 'seat';
-                seat.onclick = () => {
-                    if (currentMode === 'edit') openEditModal(idx);
-                    else updateScore(idx, currentMode === 'minus' ? -1 : 1);
-                };
+                seat.onclick = () => updateScore(idx, currentMode === 'minus' ? -1 : 1);
                 
                 seat.innerHTML = `
                     <div class="seat-num">${student.id}</div>
@@ -437,41 +481,11 @@
         }
 
         function updateScore(idx, delta) {
-            data[currentClassIdx][idx].score += delta;
+            data[currentClassIdx].students[idx].score += delta;
+            updateLastEditTime();
             saveData();
             renderSeats();
         }
-
-        // --- 編輯功能優化 ---
-        function openEditModal(idx) {
-            editingIdx = idx;
-            const student = data[currentClassIdx][idx];
-            document.getElementById('modalTitle').innerText = `修改 ${student.id} 號姓名`;
-            document.getElementById('nameInput').value = student.name;
-            document.getElementById('editModal').style.display = 'flex';
-            // 自動聚焦
-            setTimeout(() => document.getElementById('nameInput').focus(), 100);
-        }
-
-        function closeModal() {
-            document.getElementById('editModal').style.display = 'none';
-            editingIdx = -1;
-        }
-
-        function confirmEditName() {
-            if (editingIdx === -1) return;
-            const newName = document.getElementById('nameInput').value.trim();
-            data[currentClassIdx][editingIdx].name = newName || `席位 ${data[currentClassIdx][editingIdx].id}`;
-            saveData();
-            renderSeats();
-            closeModal();
-            showMsg("姓名已更新");
-        }
-
-        // 支援 Enter 鍵儲存
-        document.getElementById('nameInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') confirmEditName();
-        });
 
         function switchClass(idx) {
             currentClassIdx = idx;
@@ -481,19 +495,9 @@
         }
 
         function resetCurrentScores() {
-            if (confirm(`重置本班分數？`)) {
-                data[currentClassIdx].forEach(s => s.score = 0);
-                saveData();
-                renderSeats();
-            }
-        }
-
-        function resetCurrentNames() {
-            if (confirm(`還原預設名單？`)) {
-                const defaults = classConfigs[currentClassIdx].names;
-                data[currentClassIdx].forEach((s, i) => {
-                    if (defaults[i]) s.name = defaults[i];
-                });
+            if (confirm(`確定重置 CLASS ${currentClassIdx + 1} 分數？`)) {
+                data[currentClassIdx].students.forEach(s => s.score = 0);
+                data[currentClassIdx].lastUpdated = "無紀錄";
                 saveData();
                 renderSeats();
             }
@@ -503,10 +507,17 @@
             const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = `SVT_Backup_V10.json`; a.click();
+            a.href = url; a.download = `SVT_Backup.json`; a.click();
         }
 
-        window.onload = () => { loadData(); renderSeats(); setMode('plus'); };
+        window.onload = () => { 
+            loadData(); 
+            renderSeats(); 
+            setMode('plus'); 
+            // 每一秒更新一次所有時鐘邏輯
+            setInterval(updateAllClocks, 1000);
+            updateAllClocks();
+        };
     </script>
 </body>
 </html>
