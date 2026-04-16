@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>班級加分系統</title>
+    <title>SVT 班級加分系統 - 紀錄簡化版</title>
     <style>
         :root {
             --rose-quartz: #F7CAC9;
@@ -35,42 +35,29 @@
             overflow: hidden;
         }
 
+        /* 資訊欄 */
         .info-bar {
             width: 100%;
             max-width: 1200px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 5px 15px;
+            padding: 2px 15px;
             color: white;
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
 
-        .last-edit-info {
-            font-size: 12px;
-        }
+        .last-edit-info { font-size: 11px; }
 
         .time-display-group {
             text-align: right;
             display: flex;
             flex-direction: column;
-            gap: 2px;
         }
 
-        #currentTime {
-            font-size: 11px;
-            opacity: 0.9;
-        }
-
-        #timer {
-            background: rgba(255,255,255,0.2);
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 13px;
-            min-width: 120px;
-            text-align: center;
-        }
+        #currentTime { font-size: 10px; opacity: 0.8; }
+        #timer { font-size: 12px; }
 
         header {
             text-align: center;
@@ -79,34 +66,34 @@
             text-shadow: 1px 1px 4px rgba(0,0,0,0.1);
         }
 
-        h1 { margin: 0; font-size: 18px; font-weight: bold; letter-spacing: 1px; }
+        h1 { margin: 0; font-size: 16px; font-weight: bold; letter-spacing: 1px; }
 
+        /* 矮化按鈕的控制列 */
         .controls {
             width: 100%;
-            max-width: 800px;
+            max-width: 1100px;
             display: flex;
             flex-direction: row;
             justify-content: center;
             align-items: center;
-            gap: 15px;
+            gap: 8px;
             margin-bottom: 5px;
+            flex-wrap: wrap;
         }
 
-        .tabs {
-            display: flex;
-            gap: 3px;
-        }
+        .tabs { display: flex; gap: 3px; }
 
-        .tab-btn {
-            padding: 6px 10px;
+        .tab-btn, .mode-btn, .top-action-btn {
+            padding: 4px 10px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             background: var(--white);
             color: var(--serenity);
             cursor: pointer;
             font-weight: bold;
             font-size: 11px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.2s;
         }
 
         .tab-btn.active {
@@ -116,25 +103,26 @@
 
         .mode-switch {
             display: flex;
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.35);
             padding: 2px;
-            border-radius: 50px;
+            border-radius: 30px;
             gap: 2px;
         }
 
         .mode-btn {
-            padding: 6px 15px;
-            border-radius: 40px;
-            border: none;
-            font-weight: bold;
-            font-size: 11px;
-            cursor: pointer;
             background: transparent;
             color: #fff;
+            box-shadow: none;
         }
 
         body.mode-plus #plusBtn { background: #fff; color: var(--serenity); }
         body.mode-minus #minusBtn { background: var(--minus-color); color: white; }
+
+        .top-action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid white;
+            color: white;
+        }
 
         .classroom-container {
             background: rgba(255, 255, 255, 0.25);
@@ -209,20 +197,20 @@
         .podium {
             width: 100%;
             max-width: 250px;
-            padding: 4px;
-            background: rgba(255, 255, 255, 0.4);
+            padding: 3px;
+            background: rgba(255, 255, 255, 0.3);
             border: 1px solid white;
             color: white;
             text-align: center;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: bold;
             letter-spacing: 5px;
-            margin: 5px 0;
-            font-size: 12px;
+            margin: 3px 0;
+            font-size: 11px;
         }
 
         .footer-actions {
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             display: flex;
             gap: 5px;
             justify-content: center;
@@ -232,9 +220,70 @@
             background: rgba(255,255,255,0.2);
             border: 1px solid white;
             color: white;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 6px;
             font-size: 10px;
+            font-weight: bold;
+        }
+
+        /* 紀錄視窗 (Modal) */
+        #historyModal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            height: 70%;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 15px;
+            background: var(--serenity);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .history-time { color: #999; font-size: 11px; }
+        .history-change.plus { color: #28a745; font-weight: bold; }
+        .history-change.minus { color: var(--minus-color); font-weight: bold; }
+
+        .close-modal {
+            background: white;
+            color: var(--serenity);
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
         }
 
         .msg-box {
@@ -251,14 +300,11 @@
         }
 
         @media (min-width: 768px) {
-            h1 { font-size: 20px; }
+            h1 { font-size: 18px; }
             .seat-name { font-size: 14px; }
             .seat-score { font-size: 24px; }
             .grid { gap: 8px; }
-            .seat-num { font-size: 10px; }
-            .info-bar { font-size: 14px; }
-            #currentTime { font-size: 12px; }
-            #timer { font-size: 15px; }
+            .tab-btn, .mode-btn, .top-action-btn { font-size: 12px; padding: 5px 12px; }
         }
     </style>
 </head>
@@ -273,64 +319,87 @@
     </div>
 
     <header>
-        <h1>個人加分紀錄</h1>
+        <h1>SVT SCORE BOARD</h1>
     </header>
 
     <div class="controls">
+        <!-- 班級切換 -->
         <div class="tabs">
             <button id="tab0" class="tab-btn active" onclick="switchClass(0)">CLASS 1</button>
             <button id="tab1" class="tab-btn" onclick="switchClass(1)">CLASS 2</button>
             <button id="tab2" class="tab-btn" onclick="switchClass(2)">CLASS 3</button>
         </div>
 
+        <!-- 加減分模式 -->
         <div class="mode-switch">
             <button id="plusBtn" class="mode-btn" onclick="setMode('plus')">加分 (+)</button>
             <button id="minusBtn" class="mode-btn" onclick="setMode('minus')">減分 (-)</button>
         </div>
+
+        <!-- 紀錄與重置 (在上方) -->
+        <button class="top-action-btn" onclick="openHistory()">紀錄</button>
+        <button class="top-action-btn" style="border-color: #ffb7b7; color: #ffefef; background: rgba(255,0,0,0.1);" onclick="resetCurrentScores()">重置</button>
     </div>
 
     <div class="classroom-container">
         <div class="grid" id="seatGrid"></div>
     </div>
 
-    <div class="podium">講台</div>
+    <div class="podium">講台 (PODIUM)</div>
 
     <div class="footer-actions">
-        <button class="action-btn" onclick="resetCurrentScores()">重置本班分數</button>
         <button class="action-btn" onclick="exportData()">導出備份</button>
+    </div>
+
+    <!-- 紀錄視窗 -->
+    <div id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span id="historyTitle">操作紀錄</span>
+                <button class="close-modal" onclick="closeHistory()">關閉</button>
+            </div>
+            <div class="modal-body" id="historyBody">
+                <!-- 紀錄內容將由 JS 產生 -->
+            </div>
+        </div>
     </div>
 
     <div id="msg" class="msg-box"></div>
 
     <script>
-
+        // ==========================================
+        // 1. 課表配置區
+        // ==========================================
         const schoolSchedule = [
-            { name: "第一節", start: "08:20", end: "09:05" },
-            { name: "第二節", start: "09:15", end: "10:00" },
-            { name: "第三節", start: "10:10", end: "10:55" },
-            { name: "第四節", start: "11:05", end: "11:50" },
-            { name: "午休時間", start: "11:50", end: "13:00" },
-            { name: "第五節", start: "13:05", end: "13:50" },
-            { name: "第六節", start: "14:00", end: "14:45" },
-            { name: "第七節", start: "14:55", end: "15:40" },
-            { name: "第八節", start: "15:50", end: "16:35" }
+            { name: "第一節", start: "08:10", end: "09:00" },
+            { name: "第二節", start: "09:10", end: "10:00" },
+            { name: "第三節", start: "10:10", end: "11:00" },
+            { name: "第四節", start: "11:10", end: "12:00" },
+            { name: "午休時間", start: "12:00", end: "13:10" },
+            { name: "第五節", start: "13:10", end: "14:00" },
+            { name: "第六節", start: "14:10", end: "15:00" },
+            { name: "第七節", start: "15:10", end: "16:00" },
+            { name: "第八節", start: "16:10", end: "17:00" }
         ];
 
+        // ==========================================
+        // 2. 名單配置區
+        // ==========================================
         const classConfigs = [
             {
-                id: "Class 1",
+                id: "703",
                 cols: 7,
                 rows: 5,
                 names: [
-                    "空位", "31劉睿宜", "15鄔紹廷", "14楊承瀚", "11游元勛", "23林苡蓉", "空位",
+                    "空位", "15鄔紹廷", "26陳子晴", "14楊承瀚", "11游元勛", "23林苡蓉", "空位",
                     "05周佑恩", "21吳心羚", "24林語晨", "32潘以薰", "29黃麗璇", "33蔡湘晴", "06邱昱翔",
-                    "30趙紫妘", "13黃宥升", "26陳子晴", "07徐子恩", "25洪詩晴", "27曾浩嵐", "31劉睿宜",
+                    "30趙紫妘", "13黃宥升", "31劉睿宜", "07徐子恩", "25洪詩晴", "27曾浩嵐", "31劉睿宜",
                     "03李承恩", "34韓靜", "12黃奕文", "22吳宣宜", "10張樂懷", "18陳奕凱", "04卓旻楷",
                     "空位", "17劉書睿", "02吳俊齊", "09張祐恩", "01方崇安", "08張育睿", "16劉承翰"
                 ]
             },
             {
-                id: "Class 2",
+                id: "715",
                 cols: 6, 
                 rows: 6,
                 names: [
@@ -343,16 +412,16 @@
                 ]
             },
             {
-                id: "Class 3",
+                id: "721",
                 cols: 6,
                 rows: 6,
                 names: [
-                    "空位", "12彭宇立", "空位", "空位", "08林銓崴", "空位",
-                    "16劉醇禹", "22吳映頤", "03吳詠翔", "28陳媘恩", "09張彣鴻", "10張博鈞",
+                    "空位", "12彭宇立", "空位", "空位", "03吳詠翔", "空位",
+                    "01王星硯", "22吳映頤", "08林銓崴", "28陳媘恩", "09張彣鴻", "10張博鈞",
                     "33劉羽羚", "15劉景哲", "23邱琪芮", "35鄧又文", "30楊侑蓁", "25張允希",
                     "05李禹辰", "21吳芮潁", "04李勁銳", "11許柏健", "17陳沛冲", "14劉冠辰",
                     "24徐琦玟", "26張姵宜", "02吳東樺", "34劉妤暄", "13曾筵善", "27陳可甯",
-                    "01王星硯", "31詹詠琳", "32廖昱捷", "06李哲旭", "29彭姿瑜", "07沈品睿"
+                    "16劉醇禹", "31詹詠琳", "32廖昱捷", "06李哲旭", "29彭姿瑜", "07沈品睿"
                 ]
             }
         ];
@@ -365,6 +434,7 @@
             const names = classConfigs[classIdx].names;
             return {
                 lastUpdated: "無紀錄",
+                history: [], 
                 students: Array.from({ length: names.length }, (_, i) => ({
                     id: i + 1,
                     name: names[i],
@@ -374,9 +444,12 @@
         }
 
         function loadData() {
-            const saved = localStorage.getItem('svt_classroom_v13');
+            const saved = localStorage.getItem('svt_classroom_v14');
             if (saved) {
-                try { data = JSON.parse(saved); } catch (e) { console.error(e); }
+                try { 
+                    data = JSON.parse(saved); 
+                    data.forEach(d => { if(!d.history) d.history = []; });
+                } catch (e) { console.error(e); }
             }
             for(let i=0; i<classConfigs.length; i++) {
                 if(!data[i]) data[i] = generateInitialData(i);
@@ -384,25 +457,18 @@
         }
 
         function saveData() {
-            localStorage.setItem('svt_classroom_v13', JSON.stringify(data));
+            localStorage.setItem('svt_classroom_v14', JSON.stringify(data));
         }
 
-        // --- 時間自動計算功能 ---
         function updateAllClocks() {
             const now = new Date();
-            
-            // 1. 更新現在時間
             const h = now.getHours();
             const m = String(now.getMinutes()).padStart(2, '0');
             const s = String(now.getSeconds()).padStart(2, '0');
             document.getElementById('currentTime').innerText = `現在時間: ${h}:${m}:${s}`;
 
-            // 2. 自動計算課表
-            const currentTimeStr = `${String(h).padStart(2, '0')}:${m}`;
-            let statusText = "目前非上課時間";
-            
-            // 轉為分鐘數方便比較
             const currentTotalMin = h * 60 + now.getMinutes();
+            let statusText = "目前非上課時間";
 
             for (let i = 0; i < schoolSchedule.length; i++) {
                 const item = schoolSchedule[i];
@@ -411,7 +477,6 @@
                 const startTotal = sH * 60 + sM;
                 const endTotal = eH * 60 + eM;
 
-                // 判斷是否在上課時間內
                 if (currentTotalMin >= startTotal && currentTotalMin < endTotal) {
                     const diff = endTotal - currentTotalMin - 1;
                     const secDiff = 60 - now.getSeconds();
@@ -419,7 +484,6 @@
                     break;
                 }
                 
-                // 判斷是否在下課時間內 (在這一節課結束後，下一節課開始前)
                 if (i < schoolSchedule.length - 1) {
                     const nextItem = schoolSchedule[i+1];
                     const [nsH, nsM] = nextItem.start.split(':').map(Number);
@@ -438,12 +502,13 @@
             const timeStr = `${now.getMonth() + 1}月${now.getDate()}日 ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
             data[currentClassIdx].lastUpdated = timeStr;
             document.getElementById('lastEdit').innerText = `最後編輯: ${timeStr}`;
+            return timeStr;
         }
 
         function setMode(mode) {
             currentMode = mode;
             document.getElementById('mainBody').className = `mode-${mode}`;
-            showMsg(mode === 'minus' ? "減分模式" : "加分模式");
+            showMsg(mode === 'minus' ? "切換至：減分模式" : "切換至：加分模式");
         }
 
         function showMsg(text) {
@@ -481,8 +546,19 @@
         }
 
         function updateScore(idx, delta) {
-            data[currentClassIdx].students[idx].score += delta;
-            updateLastEditTime();
+            const student = data[currentClassIdx].students[idx];
+            student.score += delta;
+            
+            // 產生紀錄 (移除座號，只保留名字)
+            const timeStr = updateLastEditTime();
+            const log = {
+                time: timeStr.split(' ')[1], 
+                name: student.name,
+                change: delta > 0 ? `+${delta}` : `${delta}`
+            };
+            data[currentClassIdx].history.unshift(log); 
+            if(data[currentClassIdx].history.length > 100) data[currentClassIdx].history.pop(); 
+            
             saveData();
             renderSeats();
         }
@@ -491,30 +567,64 @@
             currentClassIdx = idx;
             document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === idx));
             renderSeats();
-            showMsg(`切換至 CLASS ${idx + 1}`);
+            showMsg(`已切換至 CLASS ${idx + 1}`);
         }
 
         function resetCurrentScores() {
-            if (confirm(`確定重置 CLASS ${currentClassIdx + 1} 分數？`)) {
+            if (confirm(`確定要將 CLASS ${currentClassIdx + 1} 的分數全部歸零並清空紀錄嗎？`)) {
                 data[currentClassIdx].students.forEach(s => s.score = 0);
-                data[currentClassIdx].lastUpdated = "無紀錄";
+                data[currentClassIdx].history = [];
+                data[currentClassIdx].lastUpdated = "已重置";
                 saveData();
                 renderSeats();
             }
+        }
+
+        // --- 紀錄視窗功能 ---
+        function openHistory() {
+            const modal = document.getElementById('historyModal');
+            const body = document.getElementById('historyBody');
+            const title = document.getElementById('historyTitle');
+            
+            title.innerText = `CLASS ${currentClassIdx + 1} 操作紀錄`;
+            body.innerHTML = '';
+            
+            const logs = data[currentClassIdx].history;
+            if (logs.length === 0) {
+                body.innerHTML = '<div style="text-align:center; color:#ccc; margin-top:20px;">尚無紀錄</div>';
+            } else {
+                logs.forEach(log => {
+                    const div = document.createElement('div');
+                    div.className = 'history-item';
+                    div.innerHTML = `
+                        <div>
+                            <span class="history-time">${log.time}</span>
+                            <span style="margin-left:8px; font-weight:bold;">${log.name}</span>
+                        </div>
+                        <div class="history-change ${log.change.includes('+') ? 'plus' : 'minus'}">${log.change}</div>
+                    `;
+                    body.appendChild(div);
+                });
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeHistory() {
+            document.getElementById('historyModal').style.display = 'none';
         }
 
         function exportData() {
             const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
-            a.href = url; a.download = `SVT_Backup.json`; a.click();
+            a.href = url; a.download = `SVT_Score_Backup.json`; a.click();
         }
 
         window.onload = () => { 
             loadData(); 
             renderSeats(); 
             setMode('plus'); 
-            // 每一秒更新一次所有時鐘邏輯
             setInterval(updateAllClocks, 1000);
             updateAllClocks();
         };
